@@ -8,28 +8,62 @@
     header { text-align: center; margin-bottom: 20px; }
     h1 { color: #38bdf8; font-size: 2.5rem; margin: 0; }
     
-    /* Contenedor del QR */
+    /* Contenedor del QR y del cuadro pequeño */
     .qr-container {
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       margin-bottom: 40px;
       animation: aparecer 1s ease-out;
     }
+    
     .qr-container img {
-      width: 200px; /* Tamaño del QR en pantalla */
+      width: 180px;
       height: auto;
       border: 4px solid #38bdf8;
       border-radius: 15px;
-      background: white; /* Fondo blanco para que el QR se lea mejor */
+      background: white;
       padding: 10px;
       box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
     }
-    .qr-text {
-      margin-top: 10px;
+
+    /* EL CUADRADITO PEQUEÑO DEBAJO DEL QR */
+    .recent-box {
+      margin-top: 15px;
+      width: 320px;
+      background: #1e293b;
+      border: 2px dashed #38bdf8;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      min-height: 50px;
+      transition: all 0.3s ease;
+    }
+    .recent-label {
+      font-size: 0.8rem;
       color: #38bdf8;
-      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+      display: block;
+    }
+    #ultima-idea {
       font-size: 1.1rem;
+      font-style: italic;
+      color: #f1f5f9;
     }
 
+    /* Animación de "foco" cuando llega algo nuevo al cuadradito */
+    .nuevo-mensaje {
+      animation: highlight 1s ease;
+    }
+    @keyframes highlight {
+      0% { transform: scale(1); border-color: #38bdf8; }
+      50% { transform: scale(1.05); border-color: #4ade80; }
+      100% { transform: scale(1); border-color: #38bdf8; }
+    }
+
+    /* Estilo del muro general */
     #muro { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
     .card { background: #1e293b; border-left: 5px solid #38bdf8; padding: 20px; border-radius: 10px; width: 300px; animation: aparecer 0.5s ease-out; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
     
@@ -49,7 +83,11 @@
 
   <div class="qr-container">
     <img src="unitag_qrcode_standard.png" alt="QR para votar">
-    <div class="qr-text">¡Escanea y envía tu idea!</div>
+    
+    <div class="recent-box" id="box-alerta">
+      <span class="recent-label">Recién enviado:</span>
+      <div id="ultima-idea">Esperando ideas...</div>
+    </div>
   </div>
 
   <div id="muro">
@@ -66,13 +104,24 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const muro = document.getElementById('muro');
+    const ultimaIdeaDiv = document.getElementById('ultima-idea');
+    const boxAlerta = document.getElementById('box-alerta');
 
     onChildAdded(ref(db, 'propuestas'), (snapshot) => {
       const data = snapshot.val();
+      
+      // 1. Actualizar el "cuadradito pequeño"
+      ultimaIdeaDiv.textContent = `"${data.texto}"`;
+      
+      // Efecto visual de que ha llegado algo nuevo
+      boxAlerta.classList.remove('nuevo-mensaje');
+      void boxAlerta.offsetWidth; // Truco para reiniciar animación
+      boxAlerta.classList.add('nuevo-mensaje');
+
+      // 2. Añadir la tarjeta al muro general
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `<p>${data.texto}</p>`;
-      
       muro.prepend(card);
     });
   </script>
