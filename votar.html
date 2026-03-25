@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stand ingeniería CCCB</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+    h1 { font-size: 1.2rem; text-align: center; color: #38bdf8; margin-bottom: 1rem; }
+    p { text-align: center; font-size: 1.1rem; margin-bottom: 2rem; }
+    textarea { width: 100%; max-width: 400px; height: 120px; border-radius: 12px; padding: 15px; border: 2px solid #334155; background: #1e293b; color: white; font-size: 1rem; margin-bottom: 1.5rem; resize: none; }
+    button { background: #38bdf8; color: #0f172a; border: none; padding: 1rem 2rem; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; max-width: 400px; font-size: 1.1rem; }
+    button:active { transform: scale(0.98); }
+    #feedback { margin-top: 1rem; color: #4ade80; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Stand ingeniería CCCB</h1>
+  <p>¿Qué aplicación crearías para mejorar nuestra comunidad musulmana?</p>
+  
+  <textarea id="ideaInput" placeholder="Escribe tu idea aquí..."></textarea>
+  <button onclick="enviarIdea()">Enviar propuesta</button>
+  <div id="feedback">¡Idea enviada con éxito! ✨</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      databaseURL: "https://stand-ingenieria-default-rtdb.firebaseio.com/" 
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.enviarIdea = function() {
+      const texto = document.getElementById('ideaInput').value.trim();
+      if(texto === "") return alert("¡Escribe algo primero!");
+
+      push(ref(db, 'propuestas'), {
+        texto: texto,
+        fecha: Date.now()
+      }).then(() => {
+        document.getElementById('ideaInput').value = "";
+        document.getElementById('feedback').style.display = "block";
+        setTimeout(() => { document.getElementById('feedback').style.display = "none"; }, 3000);
+      });
+    }
+  </script>
+</body>
+</html>

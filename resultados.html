@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Muro de Ideas - CCCB</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; margin: 0; padding: 40px; overflow-x: hidden; }
+    header { text-align: center; margin-bottom: 40px; }
+    h1 { color: #38bdf8; font-size: 2.5rem; margin: 0; }
+    #muro { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+    .card { background: #1e293b; border-left: 5px solid #38bdf8; padding: 20px; border-radius: 10px; width: 300px; animation: aparecer 0.5s ease-out; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    @keyframes aparecer { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .card p { margin: 0; font-size: 1.2rem; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Stand ingeniería CCCB</h1>
+    <p style="font-size: 1.5rem; color: #94a3b8;">Ideas para mejorar nuestra comunidad</p>
+  </header>
+
+  <div id="muro">
+    </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      databaseURL: "https://stand-ingenieria-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const muro = document.getElementById('muro');
+
+    // Escucha cada vez que se añade una nueva idea en tiempo real
+    onChildAdded(ref(db, 'propuestas'), (snapshot) => {
+      const data = snapshot.val();
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<p>${data.texto}</p>`;
+      
+      // Insertar al principio para que la última idea esté arriba
+      muro.prepend(card);
+    });
+  </script>
+</body>
+</html>
